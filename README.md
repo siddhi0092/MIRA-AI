@@ -1,184 +1,236 @@
-# MIRA
+# MIRA — MCP Intelligent Routine Assistant
 
-> **MIRA = MCP Intelligent Routine Assistant**
->
-> A personal AI assistant built to help you manage your day, keep track of tasks and notes, remember context over time, and evaluate how well the agent performs.
+> **A personal AI assistant that doesn't just respond — it remembers, plans, and helps you act.**
 
----
+MIRA is a full-stack AI productivity assistant built to help manage everyday routines through natural language. It integrates with Google services, maintains long-term conversational memory, executes tasks through an agent workflow, and provides observability and evaluation tools to measure its performance.
 
-## What is MIRA?
-
-MIRA is a full-stack productivity assistant that combines:
-
-- a **FastAPI backend**
-- a **React + Vite frontend**
-- **Google integrations** for Calendar, Tasks, Gmail, and authentication
-- **long-term memory** using embeddings and Pinecone
-- a **LangGraph-based agent** that plans, reasons, acts, and responds
-- an **evaluation framework** for measuring tool use, retrieval quality, groundedness, and latency
-
-It is designed to behave more like an intelligent routine companion than a simple chatbot. You can chat with it, manage your schedule, store notes, inspect traces, and review evaluation metrics — the assistant remembers important context automatically behind the scenes.
+Instead of treating every conversation as an isolated interaction, MIRA is designed to connect your current requests with relevant context from previous interactions.
 
 ---
 
-## At a Glance
+## ✨ What Makes MIRA Different?
 
-| Area | What it does |
+| Capability | What MIRA does |
 |---|---|
-| Chat | Conversational assistant with agent reasoning and tool use |
-| Calendar | View and manage schedule data |
-| Tasks | Track and organize Google Tasks |
-| Notes | Save and retrieve personal notes |
-| Habits | Track recurring habits |
-| Trace | Inspect agent execution steps |
-| Evaluation | Review benchmark and quality metrics |
+| 💬 Conversational AI | Understands requests and responds through an agent-driven chat interface |
+| 🗓️ Calendar Integration | Accesses and manages schedule-related information |
+| ✅ Task Management | Connects with Google Tasks to organize daily work |
+| 🧠 Long-Term Memory | Retrieves relevant context using embeddings and Pinecone |
+| 📝 Notes & Habits | Supports personal notes and recurring habit tracking |
+| 🔍 Agent Observability | Exposes execution traces to help inspect agent behavior |
+| 📊 Evaluation Framework | Measures tool usage, retrieval quality, groundedness, and latency |
 
----
+## 🏗️ System Architecture
 
-## Visual Overview
+MIRA combines a React frontend, FastAPI backend, LangGraph agent orchestration, external integrations, persistent storage, and an evaluation pipeline.
 
-```text
-Browser
-  ↓
-React SPA (Vite + Tailwind)
-  ↓ /api
-FastAPI backend
-  ├─ Auth + routers
-  ├─ LangGraph agent runner
-  ├─ Google MCP clients
-  ├─ RAG memory + Pinecone
-  ├─ PostgreSQL database
-  └─ Evaluation pipeline
+```mermaid
+flowchart TB
+    U["👤 User"] --> UI["React + Vite Frontend"]
+    UI --> API["FastAPI Backend"]
+
+    API --> AUTH["Authentication & API Routers"]
+    AUTH --> AGENT["LangGraph Agent"]
+
+    AGENT --> INTENT["Intent & Context Processing"]
+    INTENT --> MEMORY["Long-Term Memory"]
+    INTENT --> TOOLS["Google MCP Integrations"]
+
+    MEMORY --> PINECONE["Pinecone Vector Database"]
+    MEMORY --> DB["PostgreSQL"]
+    TOOLS --> GOOGLE["Calendar · Tasks · Gmail"]
+
+    AGENT --> EVAL["Evaluation Pipeline"]
+    AGENT --> TRACE["Execution Traces"]
+    EVAL --> DB
+    TRACE --> DB
+
+    API --> UI
+
+    classDef frontend fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef backend fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef intelligence fill:#f3e8ff,stroke:#9333ea,color:#581c87
+    classDef storage fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    class UI frontend
+    class API,AUTH backend
+    class AGENT,INTENT,MEMORY,TOOLS,EVAL,TRACE intelligence
+    class PINECONE,DB,GOOGLE storage
 ```
 
-### Core flow
+### 🔄 How the Agent Works
 
-1. You send a message from the frontend.
-2. The backend authenticates the request and starts an agent run.
-3. The agent classifies intent, fetches relevant data, checks memory, and plans actions.
-4. Results are stored, traced, and returned to the UI.
-5. Conversation context is embedded for future recall.
-
----
-
-## Key Features
-
-- **Natural language chat** for planning and routine help
-- **Google Calendar / Tasks / Gmail integration**
-- **Automatic long-term memory** — remembers context without manual input
-- **Agent trace viewer** for debugging and transparency
-- **Evaluation dashboard** for measuring agent quality
-- **Habit and notes support**
-- **Fast local frontend development** with Vite
-- **Docker support** for running the full stack
-
----
-
-## Tech Stack
-
-### Backend
-
-- Python 3.11
-- FastAPI
-- LangGraph
-- SQLAlchemy + asyncpg
-- Alembic
-- Pinecone
-- sentence-transformers
-- Mistral AI
-
-### Frontend
-
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- Axios
-
----
-
-## Project Structure
-
-```text
-.
-├─ backend/        # API, agent graph, memory, database, evaluation
-├─ frontend/       # React app
-├─ docs/           # Architecture, setup, API, evaluation docs
-├─ tests/          # Unit tests
-├─ run.py          # Local backend launcher
-├─ docker-compose.yml
-└─ README.md
+```mermaid
+flowchart TD
+    A["1. User sends a request"] --> B["2. Backend authenticates request"]
+    B --> C["3. Agent interprets intent and context"]
+    C --> D["4. Retrieve relevant memory"]
+    D --> E["5. Select and execute appropriate tools"]
+    E --> F["6. Process results and generate response"]
+    F --> G["7. Return response to frontend"]
+    G --> H["8. Store relevant context and execution data"]
 ```
 
+The exact execution path depends on the request. A simple question may not require external tools, while a calendar-related request may involve Google integrations and stored context.
+
 ---
 
-## Prerequisites
+## 🧠 Core Engineering Concepts
 
-- Python 3.11+
-- Node.js 18+ recommended
-- `pip`
-- `npm`
+### Agent orchestration
+LangGraph coordinates the agent workflow, enabling requests to pass through the appropriate processing steps and tool integrations.
+
+### Retrieval-augmented memory
+MIRA uses embeddings and Pinecone to retrieve relevant information from stored context. PostgreSQL provides relational persistence for application data.
+
+### Model and tool integration
+Mistral AI supports language-model capabilities, while Google integrations provide access to productivity services.
+
+### Observability and evaluation
+Execution traces make agent behavior easier to inspect. The evaluation framework provides a way to measure quality and latency rather than relying only on subjective responses.
+
+---
+
+## 🧰 Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, React Router |
+| Backend | Python 3.11+, FastAPI |
+| Agent Framework | LangGraph |
+| Language Model | Mistral AI |
+| Integrations | Google OAuth, Calendar, Tasks, Gmail, MCP clients |
+| Relational Database | PostgreSQL, SQLAlchemy, asyncpg |
+| Vector Search | Pinecone, sentence-transformers |
+| Database Migrations | Alembic |
+| Testing | pytest |
+| Deployment Support | Docker, Docker Compose |
+
+---
+
+## 📁 Project Structure
+
+```text
+MIRA/
+├── backend/
+│   ├── agents/          # Agent orchestration and tool nodes
+│   ├── api/             # API routes and authentication
+│   ├── database/        # Models and database connections
+│   └── ...              # Memory, integrations, evaluation
+├── frontend/
+│   └── src/
+│       └── pages/       # Chat, calendar, notes, evaluation, etc.
+├── docs/
+│   ├── architecture.md
+│   ├── agent-graph.md
+│   ├── api-reference.md
+│   └── ...              # Additional technical documentation
+├── tests/
+├── alembic/             # Database migrations
+├── run.py
+├── docker-compose.yml
+├── pyproject.toml
+└── README.md
+```
+
+*This is a representative structure; exact filenames may vary with the current implementation.*
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Install or arrange the following before running MIRA:
+
+- Python 3.11 or newer
+- Node.js 18 or newer and npm
+- Git
 - A PostgreSQL database
-- Pinecone account and API key
+- A Pinecone account and API key
 - Google Cloud OAuth credentials
-- Mistral API key
+- A Mistral AI API key
 
----
+### 1. Clone the repository
 
-## Setup
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd MIRA-AI
+```
 
-### 1) Create environment variables
+Replace the repository URL with your GitHub repository URL.
 
-Copy `.env.example` to `.env` in the project root and fill in the required values.
+### 2. Configure environment variables
 
-Required variables include:
+Create your environment file from the example:
 
-- `MISTRAL_API_KEY`
-- `DATABASE_URL`
-- `PINECONE_API_KEY`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `SECRET_KEY`
+```bash
+# Windows PowerShell
+Copy-Item .env.example .env
 
-Optional but commonly used:
+# macOS / Linux
+cp .env.example .env
+```
 
-- `MISTRAL_MODEL`
-- `MISTRAL_LIGHT_MODEL`
-- `PERSIST_SCHEDULE_TO_CALENDAR`
-- `PINECONE_INDEX_NAME`
-- `PINECONE_ENVIRONMENT`
-- `GOOGLE_REDIRECT_URI`
-- `FRONTEND_URL`
-- `VITE_API_BASE_URL`
-- `ENVIRONMENT`
-- `LOG_LEVEL`
-- `ACCESS_TOKEN_EXPIRE_MINUTES`
+Add the credentials and configuration required by your local setup.
 
-For Google OAuth details, see [GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md).
+| Variable | Purpose |
+|---|---|
+| `MISTRAL_API_KEY` | Access to Mistral AI |
+| `DATABASE_URL` | PostgreSQL connection |
+| `PINECONE_API_KEY` | Vector database access |
+| `GOOGLE_CLIENT_ID` | Google OAuth client |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth secret |
+| `SECRET_KEY` | Application signing/security key |
 
----
+Other settings may include `MISTRAL_MODEL`, `PINECONE_INDEX_NAME`, `GOOGLE_REDIRECT_URI`, `FRONTEND_URL`, `VITE_API_BASE_URL`, and `ENVIRONMENT`.
 
-## Run Locally
+**Security:** Never commit your `.env` file or expose API keys, OAuth secrets, database credentials, or production data.
 
-### Backend
+For Google OAuth configuration, see [`GOOGLE_OAUTH_SETUP.md`](GOOGLE_OAUTH_SETUP.md).
 
-From the project root:
+### 3. Start the backend
+
+Create and activate a virtual environment:
+
+```powershell
+# Windows PowerShell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+On macOS or Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Install dependencies using the dependency file maintained by the project:
 
 ```bash
 pip install -r requirements.txt
+```
+
+Then start FastAPI:
+
+```bash
 uvicorn backend.main:app --reload --port 8000
 ```
 
-You can also use:
+Alternatively, if supported by your checkout:
 
 ```bash
 python run.py
 ```
 
-### Frontend
+Backend API: `http://localhost:8000`
 
-In a second terminal:
+Interactive API documentation: `http://localhost:8000/docs`
+
+### 4. Start the frontend
+
+Open a second terminal:
 
 ```bash
 cd frontend
@@ -186,46 +238,55 @@ npm install
 npm run dev
 ```
 
-Frontend development server:
+Open the development URL printed by Vite, typically:
 
-- `http://localhost:5173`
+`http://localhost:5173`
 
-Backend API:
+### 5. Run with Docker
 
-- `http://localhost:8000`
-- API docs: `http://localhost:8000/docs`
-
----
-
-## Docker
-
-Run the full stack with:
+If your Docker Compose configuration includes the required services and environment variables:
 
 ```bash
 docker compose up --build
 ```
 
-This starts the backend and frontend services together.
-
 ---
 
-## Testing
+## 🧪 Testing & Quality Checks
+
+Run the automated tests:
 
 ```bash
 python -m pytest tests -q
 ```
 
-You can also run additional checks:
+Check Python files for compilation errors:
 
 ```bash
 python -m compileall backend
+```
+
+Check frontend TypeScript types:
+
+```bash
 cd frontend
 npx tsc --noEmit
 ```
 
+MIRA's evaluation framework is intended to help assess agent behavior through measures such as:
+
+- Tool-use correctness
+- Retrieval quality
+- Response groundedness
+- Execution latency
+
+These metrics help identify regressions as the agent evolves. Their actual coverage depends on the evaluation datasets and checks implemented in the repository.
+
 ---
 
-## Documentation
+## 📚 Documentation
+
+Explore the technical documentation for more details:
 
 - [Architecture](docs/architecture.md)
 - [Agent Graph](docs/agent-graph.md)
@@ -238,14 +299,13 @@ npx tsc --noEmit
 
 ---
 
-## Notes
+## 🛣️ Design Philosophy
 
-- The backend auto-creates tables on startup in development.
-- First startup may take longer because the embedding model needs to load.
-- Google access tokens are refreshed server-side when needed.
+MIRA brings together conversational AI, external tools, persistent context, and measurable evaluation in one productivity-oriented application.
 
----
+The core engineering objective is to make an assistant that is not only useful in a single interaction, but also easier to inspect, evaluate, and improve over time.
 
-## License
+## 📄 License
 
-No license file is currently included. Add one if you plan to share or distribute the project.
+No license is currently included. Add a license if you intend to distribute the project, and ensure that all included dependencies and assets can be shared under the chosen terms.
+
